@@ -31,7 +31,11 @@
 #ifndef __ZMALLOC_H
 #define __ZMALLOC_H
 
-/* Double expansion needed for stringification of macro values. */
+/* 
+ * Double expansion needed for stringification of macro values. 
+ * 内存优化 tcmalloc, jemalloc, libc
+ * 统一平台方法
+ * */
 #define __xstr(s) __str(s)
 #define __str(s) #s
 
@@ -72,19 +76,19 @@
 #define HAVE_DEFRAG
 #endif
 
-void *zmalloc(size_t size);
-void *zcalloc(size_t size);
-void *zrealloc(void *ptr, size_t size);
-void zfree(void *ptr);
-char *zstrdup(const char *s);
-size_t zmalloc_used_memory(void);
-void zmalloc_set_oom_handler(void (*oom_handler)(size_t));
-float zmalloc_get_fragmentation_ratio(size_t rss);
+void *zmalloc(size_t size);		// 调用zmalloc申请size个大小的空间
+void *zcalloc(size_t size);		// 调用系统函数calloc函数申请空间
+void *zrealloc(void *ptr, size_t size);	// 原内存重新调用空间为size的大小
+void zfree(void *ptr);			// 释放空间，并更新 used_memory的值
+char *zstrdup(const char *s);	// 字符串复制方法
+size_t zmalloc_used_memory(void); // 获取当前已占用的内存大小
+void zmalloc_set_oom_handler(void (*oom_handler)(size_t)); // 可自定义设置内存溢出的处理方式
+float zmalloc_get_fragmentation_ratio(size_t rss); // 所给大小与使用内存大小之比
 size_t zmalloc_get_rss(void);
-size_t zmalloc_get_private_dirty(long pid);
+size_t zmalloc_get_private_dirty(long pid);	// 获取私有的脏数据大小
 size_t zmalloc_get_smap_bytes_by_field(char *field, long pid);
 size_t zmalloc_get_memory_size(void);
-void zlibc_free(void *ptr);
+void zlibc_free(void *ptr);	// 原始系统free释放方法
 
 #ifdef HAVE_DEFRAG
 void zfree_no_tcache(void *ptr);

@@ -45,6 +45,8 @@ void zlibc_free(void *ptr) {
 #include "zmalloc.h"
 #include "atomicvar.h"
 
+// 统一平台， 申请内存对齐
+// 如果没有malloc_size函数,那么在Solaris系统上,用long long类型的长度来定义PREFIX_SIZE,其他系统为size_t的长度。
 #ifdef HAVE_MALLOC_SIZE
 #define PREFIX_SIZE (0)
 #else
@@ -70,19 +72,21 @@ void zlibc_free(void *ptr) {
 #define dallocx(ptr,flags) je_dallocx(ptr,flags)
 #endif
 
+// update_zmalloc_stat_alloc用于在分配内存的时候更新已分配大小
 #define update_zmalloc_stat_alloc(__n) do { \
     size_t _n = (__n); \
     if (_n&(sizeof(long)-1)) _n += sizeof(long)-(_n&(sizeof(long)-1)); \
     atomicIncr(used_memory,__n); \
 } while(0)
 
+// update_zmalloc_stat_free用于在释放内存的时候删除对应的记录
 #define update_zmalloc_stat_free(__n) do { \
     size_t _n = (__n); \
     if (_n&(sizeof(long)-1)) _n += sizeof(long)-(_n&(sizeof(long)-1)); \
     atomicDecr(used_memory,__n); \
 } while(0)
 
-static size_t used_memory = 0;
+static size_t used_memory = 0;	// 当前分配的内存总大小
 pthread_mutex_t used_memory_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void zmalloc_default_oom(size_t size) {
@@ -102,7 +106,9 @@ void *zmalloc(size_t size) {
     update_zmalloc_stat_alloc(zmalloc_size(ptr));
     return ptr;
 #else
+	// 现将ptr转换成size_t类型的指针,然后将size的值赋给其指向的内存
     *((size_t*)ptr) = size;
+
     update_zmalloc_stat_alloc(size+PREFIX_SIZE);
     return (char*)ptr+PREFIX_SIZE;
 #endif
