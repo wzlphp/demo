@@ -34,16 +34,18 @@
 /* 
  * Double expansion needed for stringification of macro values. 
  * 内存优化 tcmalloc, jemalloc, libc
- * 统一平台方法
+ * 统一平台方法 zmaalloc_size
  * */
 #define __xstr(s) __str(s)
+//此处使用#将宏(这里是#紧跟的那个s)“字符串化”；使用##能将左右两边的标签组合在一起，而且两个标签之间不存在空格
 #define __str(s) #s
 
+// 分别判断使用tcmalloc库/jemalloc库/苹果库哪个作为底层的malloc函数调用
 #if defined(USE_TCMALLOC)
 #define ZMALLOC_LIB ("tcmalloc-" __xstr(TC_VERSION_MAJOR) "." __xstr(TC_VERSION_MINOR))
 #include <google/tcmalloc.h>
 #if (TC_VERSION_MAJOR == 1 && TC_VERSION_MINOR >= 6) || (TC_VERSION_MAJOR > 1)
-#define HAVE_MALLOC_SIZE 1
+#define HAVE_MALLOC_SIZE 1		// 分别定义出内存占有量的计算方法
 #define zmalloc_size(p) tc_malloc_size(p)
 #else
 #error "Newer version of tcmalloc required"
@@ -83,8 +85,8 @@ void zfree(void *ptr);			// 释放空间，并更新 used_memory的值
 char *zstrdup(const char *s);	// 字符串复制方法
 size_t zmalloc_used_memory(void); // 获取当前已占用的内存大小
 void zmalloc_set_oom_handler(void (*oom_handler)(size_t)); // 可自定义设置内存溢出的处理方式
-float zmalloc_get_fragmentation_ratio(size_t rss); // 所给大小与使用内存大小之比
-size_t zmalloc_get_rss(void);
+float zmalloc_get_fragmentation_ratio(size_t rss); // 所给大小与使用内存大小之比 内存使用率
+size_t zmalloc_get_rss(void);	// 获取进程的RSS(Resident Set Size,指实际使用物理内存(包含共享库占用的内存))
 size_t zmalloc_get_private_dirty(long pid);	// 获取私有的脏数据大小
 size_t zmalloc_get_smap_bytes_by_field(char *field, long pid);
 size_t zmalloc_get_memory_size(void);

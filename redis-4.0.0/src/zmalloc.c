@@ -58,6 +58,7 @@ void zlibc_free(void *ptr) {
 #endif
 
 /* Explicitly override malloc/free etc when using tcmalloc. */
+//当使用tcmalloc库/jemalloc库的时候，显式覆盖malloc/calloc/realloc/free的方法
 #if defined(USE_TCMALLOC)
 #define malloc(size) tc_malloc(size)
 #define calloc(count,size) tc_calloc(count,size)
@@ -89,6 +90,7 @@ void zlibc_free(void *ptr) {
 static size_t used_memory = 0;	// 当前分配的内存总大小
 pthread_mutex_t used_memory_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+// 默认 oom 处理
 static void zmalloc_default_oom(size_t size) {
     fprintf(stderr, "zmalloc: Out of memory trying to allocate %zu bytes\n",
         size);
@@ -132,6 +134,7 @@ void zfree_no_tcache(void *ptr) {
 }
 #endif
 
+// 申请内存并初始化
 void *zcalloc(size_t size) {
     void *ptr = calloc(1, size+PREFIX_SIZE);
 
@@ -146,6 +149,7 @@ void *zcalloc(size_t size) {
 #endif
 }
 
+// 重新分配内存
 void *zrealloc(void *ptr, size_t size) {
 #ifndef HAVE_MALLOC_SIZE
     void *realptr;
@@ -189,6 +193,7 @@ size_t zmalloc_size(void *ptr) {
 }
 #endif
 
+// 释放内存
 void zfree(void *ptr) {
 #ifndef HAVE_MALLOC_SIZE
     void *realptr;
@@ -207,6 +212,7 @@ void zfree(void *ptr) {
 #endif
 }
 
+// 拷贝内存(字符串)
 char *zstrdup(const char *s) {
     size_t l = strlen(s)+1;
     char *p = zmalloc(l);
@@ -215,12 +221,14 @@ char *zstrdup(const char *s) {
     return p;
 }
 
+// 返回当前已使用内存的大小
 size_t zmalloc_used_memory(void) {
     size_t um;
     atomicGet(used_memory,um);
     return um;
 }
 
+// 异常处理
 void zmalloc_set_oom_handler(void (*oom_handler)(size_t)) {
     zmalloc_oom_handler = oom_handler;
 }
@@ -304,6 +312,7 @@ size_t zmalloc_get_rss(void) {
 #endif
 
 /* Fragmentation = RSS / allocated-bytes */
+// 内存使用率
 float zmalloc_get_fragmentation_ratio(size_t rss) {
     return (float)rss/zmalloc_used_memory();
 }
