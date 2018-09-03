@@ -53,6 +53,7 @@ list *listCreate(void)
 }
 
 /* Remove all the elements from the list without destroying the list itself. */
+// 释放链表中的所有节点
 void listEmpty(list *list)
 {
     unsigned long len;
@@ -71,7 +72,7 @@ void listEmpty(list *list)
 }
 
 /* Free the whole list.
- *
+ * 释放整个链表，以及链表中所有节点
  * This function can't fail. */
 void listRelease(list *list)
 {
@@ -85,6 +86,7 @@ void listRelease(list *list)
  * On error, NULL is returned and no operation is performed (i.e. the
  * list remains unaltered).
  * On success the 'list' pointer you pass to the function is returned. */
+// 新节点添加到链表的表头
 list *listAddNodeHead(list *list, void *value)
 {
     listNode *node;
@@ -111,6 +113,7 @@ list *listAddNodeHead(list *list, void *value)
  * On error, NULL is returned and no operation is performed (i.e. the
  * list remains unaltered).
  * On success the 'list' pointer you pass to the function is returned. */
+// 新节点添加到链表的表尾
 list *listAddNodeTail(list *list, void *value)
 {
     listNode *node;

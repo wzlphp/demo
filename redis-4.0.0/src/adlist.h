@@ -73,23 +73,24 @@ typedef struct list {
 /* Prototypes */
 list *listCreate(void);
 void listRelease(list *list);
-void listEmpty(list *list);
+void listEmpty(list *list);         
 list *listAddNodeHead(list *list, void *value);
 list *listAddNodeTail(list *list, void *value);
 list *listInsertNode(list *list, listNode *old_node, void *value, int after);
-void listDelNode(list *list, listNode *node);
+void listDelNode(list *list, listNode *node);       // 删除节点
 listIter *listGetIterator(list *list, int direction);
 listNode *listNext(listIter *iter);
 void listReleaseIterator(listIter *iter);
 list *listDup(list *orig);
-listNode *listSearchKey(list *list, void *key);
+listNode *listSearchKey(list *list, void *key);     // 查找
 listNode *listIndex(list *list, long index);
 void listRewind(list *list, listIter *li);
 void listRewindTail(list *list, listIter *li);
 void listRotate(list *list);
-void listJoin(list *l, list *o);
+void listJoin(list *l, list *o);            // 连接两个链表
 
 /* Directions for iterators */
+// 迭代方向
 #define AL_START_HEAD 0
 #define AL_START_TAIL 1
 
